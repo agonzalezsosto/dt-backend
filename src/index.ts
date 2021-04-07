@@ -1,8 +1,15 @@
 import express from 'express'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
+import GeneticAlgorithm from './genetic-algorithm'
 
 const router = express.Router()
+const a = GeneticAlgorithm()
+let fittest = ''
+
+setInterval(() => {
+  a.calculateNewGeneration()
+}, 10)
 
 router.get('/', (req, res) => {
   res.send({ response: 'I am alive' }).status(200)
@@ -25,7 +32,10 @@ let numActiveUsers = 0
 io.on('connection', (socket: Socket) => {
   console.log('a user connected')
   numActiveUsers++
-  io.emit('FromAPI', numActiveUsers)
+  setInterval(() => {
+    io.emit('FromAPI', a.getFittest())
+  }, 10)
+
   socket.on('disconnect', () => {
     console.log('a user disconnected')
     numActiveUsers--
