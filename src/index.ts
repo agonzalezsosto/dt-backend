@@ -27,7 +27,7 @@ app.use(router)
 //   )
 //   next()
 // })
-const port = 8080
+const port = process.env.PORT
 
 const http = createServer(app)
 const io = new Server(http, {

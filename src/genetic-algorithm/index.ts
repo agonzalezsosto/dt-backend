@@ -7,7 +7,7 @@ export type GeneticAlgorithmType = {
 
 const GeneticAlgorithm = (): GeneticAlgorithmType => {
   const populationSize = 100
-  const target = 'depart'
+  const target = 'depart transcend'
   const dnaSize = target.length
   let population: IndividualType[] = []
 
