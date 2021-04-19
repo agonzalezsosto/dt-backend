@@ -2,14 +2,29 @@ import express from 'express'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
 import GeneticAlgorithm from './genetic-algorithm'
+import TrigTimekeeper from './trig-timekeeper'
 
 const router = express.Router()
-const a = GeneticAlgorithm()
+const textGeneticAlgorithm = GeneticAlgorithm()
+const trigTimekeeper = TrigTimekeeper()
 let fittest = ''
 
 setInterval(() => {
-  a.calculateNewGeneration()
+  textGeneticAlgorithm.calculateNewGeneration()
+  trigTimekeeper.step()
 }, 10)
+
+setInterval(() => {
+  trigTimekeeper.addOffsetOne()
+}, 100000)
+
+setInterval(() => {
+  trigTimekeeper.addOffsetTwo()
+}, 500000)
+
+setInterval(() => {
+  trigTimekeeper.addOffsetThree()
+}, 1000000)
 
 router.get('/', (req, res) => {
   res.send({ response: 'I am alive' }).status(200)
@@ -17,17 +32,7 @@ router.get('/', (req, res) => {
 
 const app = express()
 app.use(router)
-// app.use(function (req, res, next) {
-//   res.header('Access-Control-Allow-Origin', '*')
-//   res.header('Access-Control-Allow-Credentials', 'true')
-//   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json'
-//   )
-//   next()
-// })
-const port = process.env.PORT
+const port = process.env.PORT || 8080
 
 const http = createServer(app)
 const io = new Server(http, {
@@ -43,8 +48,11 @@ io.on('connection', (socket: Socket) => {
   console.log('a user connected')
   numActiveUsers++
   setInterval(() => {
-    io.emit('FromAPI', a.getFittest())
+    io.emit('geneticAlgorithmText', textGeneticAlgorithm.getFittest())
+    io.emit('trigTimekeeper', trigTimekeeper.getValues())
   }, 10)
+
+  io.emit('numberOfParticipants', numActiveUsers)
 
   socket.on('disconnect', () => {
     console.log('a user disconnected')
